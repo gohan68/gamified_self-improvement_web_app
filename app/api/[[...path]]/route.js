@@ -482,7 +482,7 @@ export async function PUT(request) {
       
       const { data, error } = await supabase
         .from('learning_plan')
-        .update({ topic, xpReward })
+        .update({ topic, xpReward: parseInt(xpReward) })
         .eq('id', id)
         .select()
         .single()
@@ -490,6 +490,45 @@ export async function PUT(request) {
       if (error) throw error
       
       return NextResponse.json({ success: true, data })
+    }
+    
+    return NextResponse.json({ error: 'Invalid endpoint' }, { status: 404 })
+    
+  } catch (error) {
+    console.error('API Error:', error)
+    return NextResponse.json({ 
+      error: error.message || 'Internal server error' 
+    }, { status: 500 })
+  }
+}
+
+export async function DELETE(request) {
+  const { pathname, searchParams } = new URL(request.url)
+  const path = pathname.replace('/api/', '')
+  
+  if (!supabase) {
+    return NextResponse.json({ 
+      error: 'Supabase not configured' 
+    }, { status: 500 })
+  }
+  
+  try {
+    // Delete learning plan task
+    if (path === 'learning-plan') {
+      const taskId = searchParams.get('id')
+      
+      if (!taskId) {
+        return NextResponse.json({ error: 'Task ID required' }, { status: 400 })
+      }
+      
+      const { error } = await supabase
+        .from('learning_plan')
+        .delete()
+        .eq('id', taskId)
+      
+      if (error) throw error
+      
+      return NextResponse.json({ success: true })
     }
     
     return NextResponse.json({ error: 'Invalid endpoint' }, { status: 404 })
