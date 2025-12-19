@@ -109,10 +109,57 @@ export default function App() {
     }
   }
   
+  // Fetch analytics data
+  const fetchAnalytics = async () => {
+    try {
+      const response = await fetch('/api/analytics')
+      const data = await response.json()
+      setAnalyticsData(data)
+    } catch (error) {
+      console.error('Error fetching analytics:', error)
+    }
+  }
+  
+  // Fetch AI Coach analysis
+  const fetchAICoach = async () => {
+    setCoachLoading(true)
+    try {
+      const response = await fetch('/api/ai-coach')
+      const data = await response.json()
+      setAICoachData(data)
+    } catch (error) {
+      console.error('Error fetching AI coach:', error)
+      toast.error('Failed to load AI coach insights')
+    } finally {
+      setCoachLoading(false)
+    }
+  }
+  
+  // Fetch daily suggestion
+  const fetchDailySuggestion = async () => {
+    try {
+      const response = await fetch('/api/daily-suggestion')
+      const data = await response.json()
+      setDailySuggestion(data)
+    } catch (error) {
+      console.error('Error fetching daily suggestion:', error)
+    }
+  }
+  
   useEffect(() => {
     fetchDashboard()
     fetchLearningPlan()
+    fetchDailySuggestion()
   }, [])
+  
+  useEffect(() => {
+    if (activeTab === 'analytics' && !analyticsData) {
+      fetchAnalytics()
+    }
+    if (activeTab === 'coach' && !aiCoachData) {
+      fetchAICoach()
+    }
+  }, [activeTab])
   
   // Handle log study session
   const handleLogStudy = async (e) => {
