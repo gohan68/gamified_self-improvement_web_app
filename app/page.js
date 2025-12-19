@@ -593,13 +593,17 @@ export default function App() {
           <TabsContent value="plan" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-6 w-6 text-violet-600" />
-                  4-Week Learning Plan
-                </CardTitle>
-                <CardDescription>
-                  Java + DSA + CS Fundamentals structured learning path
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-6 w-6 text-violet-600" />
+                      4-Week Learning Plan
+                    </CardTitle>
+                    <CardDescription>
+                      Java + DSA + CS Fundamentals structured learning path
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {Object.keys(learningPlan).length > 0 ? (
@@ -607,25 +611,65 @@ export default function App() {
                     {Object.entries(learningPlan).map(([week, tasks]) => {
                       if (!Array.isArray(tasks)) return null
                       
+                      const completedTasks = tasks.filter(t => t.status === 'Completed').length
+                      const totalTasks = tasks.length
+                      const weekProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0
+                      
                       return (
                         <div key={week} className="space-y-3">
                           <div className="flex items-center gap-3">
                             <div className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full font-semibold text-sm">
                               Week {week}
                             </div>
-                            <Separator className="flex-1" />
+                            <div className="flex-1">
+                              <Progress value={weekProgress} className="h-2" />
+                            </div>
+                            <span className="text-sm text-gray-600 font-medium">
+                              {completedTasks}/{totalTasks} completed
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2"
+                              onClick={() => handleOpenAddDialog(week)}
+                            >
+                              <Plus className="h-4 w-4" />
+                              Add Task
+                            </Button>
                           </div>
                           
                           <div className="grid gap-3">
                             {tasks.map((task) => (
                               <div 
                                 key={task.id} 
-                                className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow"
+                                className={`flex items-center justify-between p-4 border-2 rounded-lg hover:shadow-md transition-all ${
+                                  task.status === 'Completed' 
+                                    ? 'bg-green-50 border-green-200' 
+                                    : task.status === 'In Progress'
+                                    ? 'bg-blue-50 border-blue-200'
+                                    : 'bg-white border-gray-200'
+                                }`}
                               >
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-medium text-gray-900">{task.topic}</span>
-                                    <Badge variant="outline" className="text-xs">
+                                    {task.status === 'Completed' && (
+                                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                    )}
+                                    <span className={`font-medium ${
+                                      task.status === 'Completed' ? 'text-green-900' : 'text-gray-900'
+                                    }`}>
+                                      {task.topic}
+                                    </span>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-xs ${
+                                        task.subjectType === 'Java' 
+                                          ? 'bg-orange-100 text-orange-700 border-orange-200'
+                                          : task.subjectType === 'DSA'
+                                          ? 'bg-blue-100 text-blue-700 border-blue-200'
+                                          : 'bg-purple-100 text-purple-700 border-purple-200'
+                                      }`}
+                                    >
                                       {task.subjectType}
                                     </Badge>
                                   </div>
@@ -635,19 +679,58 @@ export default function App() {
                                   </div>
                                 </div>
                                 
-                                <Select 
-                                  value={task.status} 
-                                  onValueChange={(value) => handleUpdateTask(task.id, value)}
-                                >
-                                  <SelectTrigger className="w-[160px]">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Not Started">Not Started</SelectItem>
-                                    <SelectItem value="In Progress">In Progress</SelectItem>
-                                    <SelectItem value="Completed">Completed</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                <div className="flex items-center gap-2">
+                                  <Select 
+                                    value={task.status} 
+                                    onValueChange={(value) => handleUpdateTask(task.id, value)}
+                                  >
+                                    <SelectTrigger className="w-[150px]">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Not Started">Not Started</SelectItem>
+                                      <SelectItem value="In Progress">In Progress</SelectItem>
+                                      <SelectItem value="Completed">Completed</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleEditTask(task)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to delete "{task.topic}"? This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => handleDeleteTask(task.id)}
+                                          className="bg-red-600 hover:bg-red-700"
+                                        >
+                                          Delete
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -663,6 +746,118 @@ export default function App() {
                 )}
               </CardContent>
             </Card>
+            
+            {/* Edit Task Dialog */}
+            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Task</DialogTitle>
+                  <DialogDescription>
+                    Update the task details below
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-topic">Task Topic *</Label>
+                    <Input
+                      id="edit-topic"
+                      value={editForm.topic}
+                      onChange={(e) => setEditForm({ ...editForm, topic: e.target.value })}
+                      placeholder="e.g., Binary Search Trees"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-xp">XP Reward *</Label>
+                    <Input
+                      id="edit-xp"
+                      type="number"
+                      min="10"
+                      value={editForm.xpReward}
+                      onChange={(e) => setEditForm({ ...editForm, xpReward: e.target.value })}
+                      placeholder="e.g., 150"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveEdit}>
+                    Save Changes
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            
+            {/* Add Task Dialog */}
+            <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Task</DialogTitle>
+                  <DialogDescription>
+                    Add a new learning task to your plan
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="add-week">Week *</Label>
+                    <Select value={addForm.week} onValueChange={(value) => setAddForm({ ...addForm, week: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Week 1</SelectItem>
+                        <SelectItem value="2">Week 2</SelectItem>
+                        <SelectItem value="3">Week 3</SelectItem>
+                        <SelectItem value="4">Week 4</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-topic">Task Topic *</Label>
+                    <Input
+                      id="add-topic"
+                      value={addForm.topic}
+                      onChange={(e) => setAddForm({ ...addForm, topic: e.target.value })}
+                      placeholder="e.g., Advanced Recursion Patterns"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-subject">Subject Type *</Label>
+                    <Select value={addForm.subjectType} onValueChange={(value) => setAddForm({ ...addForm, subjectType: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Java">Java</SelectItem>
+                        <SelectItem value="DSA">DSA</SelectItem>
+                        <SelectItem value="CS">CS</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="add-xp">XP Reward *</Label>
+                    <Input
+                      id="add-xp"
+                      type="number"
+                      min="10"
+                      value={addForm.xpReward}
+                      onChange={(e) => setAddForm({ ...addForm, xpReward: e.target.value })}
+                      placeholder="e.g., 150"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddTask}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Task
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
         </Tabs>
       </div>
