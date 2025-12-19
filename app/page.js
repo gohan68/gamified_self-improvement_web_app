@@ -46,8 +46,12 @@ import {
 export default function App() {
   const [dashboardData, setDashboardData] = useState(null)
   const [learningPlan, setLearningPlan] = useState({})
+  const [analyticsData, setAnalyticsData] = useState(null)
+  const [aiCoachData, setAICoachData] = useState(null)
+  const [dailySuggestion, setDailySuggestion] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [coachLoading, setCoachLoading] = useState(false)
   
   // Dialog states for editing/adding tasks
   const [editDialogOpen, setEditDialogOpen] = useState(false)
