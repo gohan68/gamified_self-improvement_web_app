@@ -368,7 +368,7 @@ export default function App() {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[600px] mx-auto">
+          <TabsList className="grid w-full grid-cols-5 lg:w-[900px] mx-auto">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <Target className="h-4 w-4" />
               Dashboard
@@ -380,6 +380,14 @@ export default function App() {
             <TabsTrigger value="plan" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               Learning Plan
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="coach" className="flex items-center gap-2">
+              <Bot className="h-4 w-4" />
+              AI Coach
             </TabsTrigger>
           </TabsList>
           
