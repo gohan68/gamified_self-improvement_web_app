@@ -486,52 +486,56 @@ export default function App() {
               <CardContent>
                 {Object.keys(learningPlan).length > 0 ? (
                   <div className="space-y-6">
-                    {Object.entries(learningPlan).map(([week, tasks]) => (
-                      <div key={week} className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full font-semibold text-sm">
-                            Week {week}
-                          </div>
-                          <Separator className="flex-1" />
-                        </div>
-                        
-                        <div className="grid gap-3">
-                          {tasks.map((task) => (
-                            <div 
-                              key={task.id} 
-                              className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow"
-                            >
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-medium text-gray-900">{task.topic}</span>
-                                  <Badge variant="outline" className="text-xs">
-                                    {task.subjectType}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                  <Zap className="h-3 w-3" />
-                                  {task.xpReward} XP reward
-                                </div>
-                              </div>
-                              
-                              <Select 
-                                value={task.status} 
-                                onValueChange={(value) => handleUpdateTask(task.id, value)}
-                              >
-                                <SelectTrigger className="w-[160px]">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Not Started">Not Started</SelectItem>
-                                  <SelectItem value="In Progress">In Progress</SelectItem>
-                                  <SelectItem value="Completed">Completed</SelectItem>
-                                </SelectContent>
-                              </Select>
+                    {Object.entries(learningPlan).map(([week, tasks]) => {
+                      if (!Array.isArray(tasks)) return null
+                      
+                      return (
+                        <div key={week} className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full font-semibold text-sm">
+                              Week {week}
                             </div>
-                          ))}
+                            <Separator className="flex-1" />
+                          </div>
+                          
+                          <div className="grid gap-3">
+                            {tasks.map((task) => (
+                              <div 
+                                key={task.id} 
+                                className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow"
+                              >
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-medium text-gray-900">{task.topic}</span>
+                                    <Badge variant="outline" className="text-xs">
+                                      {task.subjectType}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <Zap className="h-3 w-3" />
+                                    {task.xpReward} XP reward
+                                  </div>
+                                </div>
+                                
+                                <Select 
+                                  value={task.status} 
+                                  onValueChange={(value) => handleUpdateTask(task.id, value)}
+                                >
+                                  <SelectTrigger className="w-[160px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Not Started">Not Started</SelectItem>
+                                    <SelectItem value="In Progress">In Progress</SelectItem>
+                                    <SelectItem value="Completed">Completed</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-12 text-gray-500">
