@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -32,7 +32,15 @@ import {
   Edit,
   Trash2,
   Plus,
-  CheckCircle2
+  CheckCircle2,
+  BarChart3,
+  LineChart,
+  PieChart,
+  AlertTriangle,
+  Sparkles,
+  Bot,
+  Lightbulb,
+  TrendingDown
 } from 'lucide-react'
 
 export default function App() {
