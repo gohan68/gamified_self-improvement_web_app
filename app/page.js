@@ -177,6 +177,103 @@ export default function App() {
     }
   }
   
+  // Handle edit task
+  const handleEditTask = (task) => {
+    setSelectedTask(task)
+    setEditForm({ topic: task.topic, xpReward: task.xpReward.toString() })
+    setEditDialogOpen(true)
+  }
+  
+  const handleSaveEdit = async () => {
+    if (!editForm.topic || !editForm.xpReward) {
+      toast.error('Topic and XP reward are required')
+      return
+    }
+    
+    try {
+      const response = await fetch('/api/learning-plan', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedTask.id,
+          topic: editForm.topic,
+          xpReward: editForm.xpReward
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        toast.success('Task updated successfully!')
+        setEditDialogOpen(false)
+        fetchLearningPlan()
+      } else {
+        toast.error(data.error || 'Failed to update task')
+      }
+    } catch (error) {
+      console.error('Error editing task:', error)
+      toast.error('Failed to update task')
+    }
+  }
+  
+  // Handle add task
+  const handleOpenAddDialog = (week) => {
+    setSelectedWeek(week)
+    setAddForm({ ...addForm, week: week.toString() })
+    setAddDialogOpen(true)
+  }
+  
+  const handleAddTask = async () => {
+    if (!addForm.topic) {
+      toast.error('Topic is required')
+      return
+    }
+    
+    try {
+      const response = await fetch('/api/add-task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addForm)
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        toast.success('Task added successfully!')
+        setAddDialogOpen(false)
+        setAddForm({ week: '1', topic: '', subjectType: 'Java', xpReward: '100' })
+        fetchLearningPlan()
+      } else {
+        toast.error(data.error || 'Failed to add task')
+      }
+    } catch (error) {
+      console.error('Error adding task:', error)
+      toast.error('Failed to add task')
+    }
+  }
+  
+  // Handle delete task
+  const handleDeleteTask = async (taskId) => {
+    try {
+      const response = await fetch(`/api/learning-plan?id=${taskId}`, {
+        method: 'DELETE'
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        toast.success('Task deleted successfully!')
+        fetchLearningPlan()
+        fetchDashboard()
+      } else {
+        toast.error(data.error || 'Failed to delete task')
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error)
+      toast.error('Failed to delete task')
+    }
+  }
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 flex items-center justify-center">
