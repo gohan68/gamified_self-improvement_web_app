@@ -453,6 +453,38 @@ export async function POST(request) {
       return NextResponse.json({ success: true, data })
     }
     
+    // Add new task to learning plan
+    if (path === 'add-task') {
+      const { week, topic, subjectType, xpReward } = body
+      
+      if (!week || !topic || !subjectType) {
+        return NextResponse.json({ 
+          error: 'Week, topic, and subject type are required' 
+        }, { status: 400 })
+      }
+      
+      const newTask = {
+        id: uuidv4(),
+        userId: DEMO_USER_ID,
+        week: parseInt(week),
+        topic,
+        subjectType,
+        status: 'Not Started',
+        xpReward: parseInt(xpReward) || 100,
+        createdAt: new Date().toISOString()
+      }
+      
+      const { data, error } = await supabase
+        .from('learning_plan')
+        .insert([newTask])
+        .select()
+        .single()
+      
+      if (error) throw error
+      
+      return NextResponse.json({ success: true, data })
+    }
+    
     return NextResponse.json({ error: 'Invalid endpoint' }, { status: 404 })
     
   } catch (error) {
