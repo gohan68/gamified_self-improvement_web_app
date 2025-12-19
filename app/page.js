@@ -41,6 +41,21 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('dashboard')
   
+  // Dialog states for editing/adding tasks
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [selectedTask, setSelectedTask] = useState(null)
+  const [selectedWeek, setSelectedWeek] = useState(null)
+  
+  // Form states
+  const [editForm, setEditForm] = useState({ topic: '', xpReward: '' })
+  const [addForm, setAddForm] = useState({ 
+    week: '1', 
+    topic: '', 
+    subjectType: 'Java', 
+    xpReward: '100' 
+  })
+  
   // Daily log form state
   const [logForm, setLogForm] = useState({
     timeSpent: '',
