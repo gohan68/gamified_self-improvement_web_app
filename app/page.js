@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { 
   Trophy, 
@@ -26,7 +28,11 @@ import {
   Clock,
   Brain,
   Coffee,
-  Briefcase
+  Briefcase,
+  Edit,
+  Trash2,
+  Plus,
+  CheckCircle2
 } from 'lucide-react'
 
 export default function App() {
