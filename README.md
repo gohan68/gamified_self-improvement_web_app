@@ -252,7 +252,22 @@ Returns dashboard data including user stats, streak, badges, recent logs, and mo
 Returns the 4-week learning plan grouped by week.
 
 ### GET `/api/analytics`
-Returns analytics data including completion percentage, subject breakdown, and weak subjects.
+Returns comprehensive analytics data including:
+- Completion percentage and task counts
+- Subject-wise breakdown
+- Weak subject detection
+- XP and level information
+- Complete study log history
+
+### GET `/api/ai-coach`
+Returns AI-powered coaching insights including:
+- Personalized coaching message
+- Behavioral patterns (burnout risk, consistency, etc.)
+- Weak subjects recommendations
+- Study session analytics
+
+### GET `/api/daily-suggestion`
+Returns AI-generated daily study suggestion based on current progress and patterns.
 
 ### POST `/api/log-study`
 Logs a study session and awards XP.
@@ -279,6 +294,25 @@ Updates a learning plan task status.
   \"status\": \"Completed\"
 }
 ```
+
+### POST `/api/add-task`
+Adds a new task to the learning plan.
+
+**Request body:**
+```json
+{
+  \"week\": 1,
+  \"topic\": \"Advanced Recursion\",
+  \"subjectType\": \"DSA\",
+  \"xpReward\": 150
+}
+```
+
+### PUT `/api/learning-plan`
+Updates task details (topic and XP reward).
+
+### DELETE `/api/learning-plan?id={taskId}`
+Deletes a task from the learning plan.
 
 ## 🎨 Design Principles
 
