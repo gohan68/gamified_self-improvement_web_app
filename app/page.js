@@ -926,6 +926,373 @@ export default function App() {
               </DialogContent>
             </Dialog>
           </TabsContent>
+          
+          {/* Analytics Tab - Phase 3 */}
+          <TabsContent value="analytics" className="space-y-6">
+            {analyticsData ? (
+              <>
+                {/* Overview Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <CheckCircle2 className="h-5 w-5" />
+                        Completion Rate
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold mb-2">{analyticsData.completionPercentage}%</div>
+                      <p className="text-sm opacity-90">{analyticsData.completedTasks} of {analyticsData.totalTasks} tasks</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white border-0">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Clock className="h-5 w-5" />
+                        Total Study Time
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold mb-2">
+                        {Math.floor((analyticsData.logs?.reduce((sum, log) => sum + log.timeSpent, 0) || 0) / 60)}h
+                      </div>
+                      <p className="text-sm opacity-90">{analyticsData.logs?.length || 0} sessions logged</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-gradient-to-br from-pink-500 to-rose-600 text-white border-0">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <TrendingUp className="h-5 w-5" />
+                        Current Level
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold mb-2">{analyticsData.currentLevel}</div>
+                      <p className="text-sm opacity-90">{analyticsData.currentXP} Total XP</p>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                {/* Subject Breakdown */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <PieChart className="h-5 w-5 text-violet-600" />
+                      Subject-wise Progress
+                    </CardTitle>
+                    <CardDescription>Track your progress across different subjects</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {Object.entries(analyticsData.subjectBreakdown || {}).map(([subject, stats]) => {
+                        const percentage = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0
+                        return (
+                          <div key={subject} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Badge 
+                                  variant="outline"
+                                  className={`${
+                                    subject === 'Java' 
+                                      ? 'bg-orange-100 text-orange-700 border-orange-200'
+                                      : subject === 'DSA'
+                                      ? 'bg-blue-100 text-blue-700 border-blue-200'
+                                      : 'bg-purple-100 text-purple-700 border-purple-200'
+                                  }`}
+                                >
+                                  {subject}
+                                </Badge>
+                                <span className="text-sm text-gray-600">
+                                  {stats.completed} / {stats.total} completed
+                                </span>
+                              </div>
+                              <span className="text-sm font-semibold">{Math.round(percentage)}%</span>
+                            </div>
+                            <Progress value={percentage} className="h-2" />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Weak Subjects Warning */}
+                {analyticsData.weakSubjects && analyticsData.weakSubjects.length > 0 && (
+                  <Card className="border-amber-200 bg-amber-50">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-amber-900">
+                        <AlertTriangle className="h-5 w-5" />
+                        Areas Needing Attention
+                      </CardTitle>
+                      <CardDescription className="text-amber-700">
+                        These subjects have low completion rates
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {analyticsData.weakSubjects.map((subject) => (
+                          <Badge 
+                            key={subject} 
+                            variant="secondary"
+                            className="bg-amber-200 text-amber-900 border-amber-300"
+                          >
+                            {subject}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {/* Recent Activity Chart */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <LineChart className="h-5 w-5 text-violet-600" />
+                      Study Activity Timeline
+                    </CardTitle>
+                    <CardDescription>Your study sessions over time</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {analyticsData.logs && analyticsData.logs.length > 0 ? (
+                      <ScrollArea className="h-[300px]">
+                        <div className="space-y-3">
+                          {analyticsData.logs.slice(0, 15).map((log) => (
+                            <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="h-4 w-4 text-gray-500" />
+                                  <span className="font-medium">{new Date(log.date).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {log.timeSpent} min
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Brain className="h-3 w-3" />
+                                    Difficulty: {log.difficulty}/5
+                                  </span>
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-200">
+                                +{log.xpEarned} XP
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    ) : (
+                      <div className="text-center py-12 text-gray-500">
+                        <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>No study data available yet. Start logging sessions!</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-violet-600 mx-auto mb-4"></div>
+                  <p className="text-lg text-gray-600">Loading analytics...</p>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* AI Coach Tab - Phase 4 */}
+          <TabsContent value="coach" className="space-y-6">
+            {/* Daily Suggestion Banner */}
+            {dailySuggestion && dailySuggestion.success && (
+              <Card className="border-2 border-violet-200 bg-gradient-to-r from-violet-50 to-purple-50">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full">
+                      <Lightbulb className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-1 text-gray-900">Today's Focus</h3>
+                      <p className="text-gray-700">{dailySuggestion.suggestion}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {coachLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-violet-600 mx-auto mb-4"></div>
+                  <p className="text-lg text-gray-600">AI Coach is analyzing your journey...</p>
+                </div>
+              </div>
+            ) : aiCoachData ? (
+              <>
+                {/* AI Coaching Insights */}
+                <Card className="border-2 border-purple-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Bot className="h-6 w-6 text-purple-600" />
+                      Personalized Coaching Insights
+                    </CardTitle>
+                    <CardDescription>
+                      AI-powered analysis of your learning journey
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {aiCoachData.success ? (
+                      <div className="prose prose-sm max-w-none">
+                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                          <div className="flex items-start gap-3 mb-4">
+                            <Sparkles className="h-6 w-6 text-purple-600 flex-shrink-0 mt-1" />
+                            <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+                              {aiCoachData.coaching}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-600">
+                        <Bot className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>AI Coach analysis unavailable. Keep studying and check back later!</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                {/* Behavioral Patterns */}
+                {aiCoachData.patterns && Object.keys(aiCoachData.patterns).length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <BarChart3 className="h-5 w-5 text-violet-600" />
+                        Your Study Patterns
+                      </CardTitle>
+                      <CardDescription>Insights from your study behavior</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Total Sessions</span>
+                            <Clock className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div className="text-2xl font-bold text-blue-700">
+                            {aiCoachData.patterns.total_sessions || 0}
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Avg Time/Session</span>
+                            <TrendingUp className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div className="text-2xl font-bold text-green-700">
+                            {aiCoachData.patterns.avg_time_per_session || 0} min
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Avg Difficulty</span>
+                            <Brain className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <div className="text-2xl font-bold text-purple-700">
+                            {aiCoachData.patterns.avg_difficulty || 0}/5
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Consistency</span>
+                            <Star className="h-4 w-4 text-amber-600" />
+                          </div>
+                          <div className="text-2xl font-bold text-amber-700">
+                            {aiCoachData.patterns.consistency_score || 0}%
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Warnings */}
+                      {(aiCoachData.patterns.burnout_risk || aiCoachData.patterns.skip_detection) && (
+                        <div className="mt-4 space-y-2">
+                          {aiCoachData.patterns.burnout_risk && (
+                            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                              <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                              <span className="text-sm text-red-800">
+                                <strong>Burnout Risk Detected:</strong> You've had several high-intensity study sessions. Consider taking breaks!
+                              </span>
+                            </div>
+                          )}
+                          {aiCoachData.patterns.skip_detection && (
+                            <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                              <TrendingDown className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                              <span className="text-sm text-orange-800">
+                                <strong>Irregular Schedule:</strong> There are gaps in your study schedule. Try to maintain consistency!
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {/* Weak Subjects */}
+                {aiCoachData.weak_subjects && aiCoachData.weak_subjects.length > 0 && (
+                  <Card className="border-amber-200 bg-amber-50">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-amber-900">
+                        <AlertTriangle className="h-5 w-5" />
+                        Subjects to Focus On
+                      </CardTitle>
+                      <CardDescription className="text-amber-700">
+                        AI recommends spending more time on these areas
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {aiCoachData.weak_subjects.map((ws, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-white border border-amber-200 rounded-lg">
+                            <span className="font-medium text-amber-900">{ws.subject}</span>
+                            <Badge variant="secondary" className="bg-amber-200 text-amber-900">
+                              {ws.completion_rate}% complete
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {/* Refresh Button */}
+                <div className="flex justify-center">
+                  <Button
+                    onClick={() => fetchAICoach()}
+                    className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Refresh AI Analysis
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <Bot className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                <p className="text-gray-600 mb-4">AI Coach is ready to help you!</p>
+                <Button
+                  onClick={() => fetchAICoach()}
+                  className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Get AI Coaching
+                </Button>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
