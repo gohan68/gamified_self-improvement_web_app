@@ -271,6 +271,166 @@ export async function GET(request) {
       })
     }
     
+    // Get AI Coach analysis
+    if (path === 'ai-coach') {
+      const userId = DEMO_USER_ID
+      
+      // Get user data
+      const { data: userData } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      // Get all logs
+      const { data: logs } = await supabase
+        .from('daily_logs')
+        .select('*')
+        .eq('userId', userId)
+        .order('date', { ascending: false })
+      
+      // Get learning plan
+      const { data: planData } = await supabase
+        .from('learning_plan')
+        .select('*')
+        .eq('userId', userId)
+      
+      // Group plan by week
+      const learningPlan = {}
+      planData?.forEach(item => {
+        if (!learningPlan[item.week]) {
+          learningPlan[item.week] = []
+        }
+        learningPlan[item.week].push(item)
+      })
+      
+      // Call Python AI service
+      try {
+        const { spawn } = require('child_process')
+        const data = JSON.stringify({
+          user_data: userData,
+          logs: logs || [],
+          learning_plan: learningPlan
+        })
+        
+        const result = await new Promise((resolve, reject) => {
+          const pythonProcess = spawn('python3', ['/app/ai_service/coach.py', 'analyze', data])
+          let output = ''
+          let errorOutput = ''
+          
+          pythonProcess.stdout.on('data', (data) => {
+            output += data.toString()
+          })
+          
+          pythonProcess.stderr.on('data', (data) => {
+            errorOutput += data.toString()
+          })
+          
+          pythonProcess.on('close', (code) => {
+            if (code !== 0) {
+              reject(new Error(`Python process failed: ${errorOutput}`))
+            } else {
+              try {
+                resolve(JSON.parse(output))
+              } catch (e) {
+                reject(new Error(`Failed to parse Python output: ${output}`))
+              }
+            }
+          })
+          
+          // Timeout after 30 seconds
+          setTimeout(() => {
+            pythonProcess.kill()
+            reject(new Error('AI Coach timeout'))
+          }, 30000)
+        })
+        
+        return NextResponse.json(result)
+      } catch (error) {
+        console.error('AI Coach Error:', error)
+        return NextResponse.json({ 
+          success: false,
+          error: error.message,
+          coaching: "Keep up the great work! Focus on consistency and you'll reach your goals.",
+          patterns: {},
+          weak_subjects: []
+        })
+      }
+    }
+    
+    // Get daily suggestion from AI
+    if (path === 'daily-suggestion') {
+      const userId = DEMO_USER_ID
+      
+      const { data: userData } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      const { data: logs } = await supabase
+        .from('daily_logs')
+        .select('*')
+        .eq('userId', userId)
+        .order('date', { ascending: false })
+        .limit(10)
+      
+      const { data: planData } = await supabase
+        .from('learning_plan')
+        .select('*')
+        .eq('userId', userId)
+      
+      const learningPlan = {}
+      planData?.forEach(item => {
+        if (!learningPlan[item.week]) {
+          learningPlan[item.week] = []
+        }
+        learningPlan[item.week].push(item)
+      })
+      
+      try {
+        const { spawn } = require('child_process')
+        const data = JSON.stringify({
+          user_data: userData,
+          logs: logs || [],
+          learning_plan: learningPlan
+        })
+        
+        const result = await new Promise((resolve, reject) => {
+          const pythonProcess = spawn('python3', ['/app/ai_service/coach.py', 'daily_suggestion', data])
+          let output = ''
+          
+          pythonProcess.stdout.on('data', (data) => {
+            output += data.toString()
+          })
+          
+          pythonProcess.on('close', (code) => {
+            if (code !== 0) {
+              reject(new Error('Python process failed'))
+            } else {
+              try {
+                resolve(JSON.parse(output))
+              } catch (e) {
+                resolve({ success: true, suggestion: 'Focus on your weakest subject today!' })
+              }
+            }
+          })
+          
+          setTimeout(() => {
+            pythonProcess.kill()
+            reject(new Error('Timeout'))
+          }, 20000)
+        })
+        
+        return NextResponse.json(result)
+      } catch (error) {
+        return NextResponse.json({ 
+          success: true,
+          suggestion: 'Start with your most challenging topic today. Consistency is key!'
+        })
+      }
+    }
+    
     return NextResponse.json({ error: 'Invalid endpoint' }, { status: 404 })
     
   } catch (error) {
