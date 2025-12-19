@@ -320,26 +320,42 @@ Deletes a task from the learning plan.
 - **Gaming-Inspired** - Level up, earn XP, collect badges
 - **Calm & Friendly** - Motivational without being aggressive
 - **Mobile Responsive** - Works beautifully on all devices
+- **AI-Powered** - Smart coaching that adapts to your learning style
 
-## 🚀 Next Steps (Phases 2-4)
+## 🤖 AI Coach Features
 
-### Phase 2: Enhanced Learning Plan
-- Already implemented! Just needs Supabase credentials
-- Editable plan UI (can modify topics and XP rewards)
-- Task completion tracking with XP rewards
+The AI Smart Coach uses **GPT-5.1** to provide personalized learning guidance:
 
-### Phase 3: Analytics Dashboard
-- XP growth visualization with charts
-- Streak calendar heatmap
-- Behavioral pattern detection
+### Pattern Detection
+- **Consistency Analysis** - Tracks your study regularity
+- **Burnout Risk Detection** - Warns when intensity is too high
+- **Skip Detection** - Identifies gaps in your study schedule
+- **Difficulty Tracking** - Monitors challenge levels across sessions
+
+### Personalized Recommendations
+- Daily study suggestions based on your progress
+- Subject-specific focus areas
+- Adaptive difficulty recommendations
+- Behavioral insights and improvements
+
+### Smart Insights
 - Weak subject identification
+- Study time optimization
+- Energy and mood pattern analysis
+- Freelance workload correlation
 
-### Phase 4: AI Smart Coach
-- Adaptive suggestions using Emergent LLM
-- Pattern detection (frequent skips, burnout risk, overload)
-- Personalized recommendations based on behavior
+## 📊 Analytics Features
 
-## 💡 Tips
+Track your learning journey with comprehensive analytics:
+
+- **Progress Tracking** - Overall completion percentage
+- **Subject Breakdown** - Individual progress for Java, DSA, and CS
+- **Study Time Analysis** - Total hours and session statistics
+- **Activity Timeline** - Detailed view of all study sessions
+- **Performance Metrics** - XP growth and level progression
+- **Weak Area Detection** - Automatic identification of subjects needing attention
+
+## 🎯 How to Use
 
 1. **Be Consistent** - Log every day to maintain your streak!
 2. **Be Honest** - Accurate difficulty ratings help track your progress
